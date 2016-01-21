@@ -2,12 +2,12 @@ package com.github.ogress;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface OgressPersistenceManager {
+public interface OgressDb {
 
     @NotNull
-    OgressObject getRoot();
+    Object getRoot();
 
-    void setRoot(@NotNull OgressObject o);
+    void setRoot(@NotNull Object o);
 
     void flush();
 

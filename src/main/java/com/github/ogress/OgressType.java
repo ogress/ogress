@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-public @interface OgressField {
+@Target({ElementType.TYPE})
+public @interface OgressType {
     @NotNull
     String value();
 }
