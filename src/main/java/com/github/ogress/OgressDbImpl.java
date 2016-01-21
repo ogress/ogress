@@ -50,10 +50,10 @@ public class OgressDbImpl implements OgressDb {
         if (objectsMap.containsKey(o)) {
             return;
         }
-        String typeName = getObjectTypeName(o);
+        String typeName = getObjectTypeName(o.getClass());
         OgressObjectSchema schema = schemaRegistry.getByType(typeName);
         if (schema == null) {
-            schema = prepareObjectSchema(o);
+            schema = prepareObjectSchema(o.getClass());
         }
         objectsMap.put(o, new OgressObjectInfo(schema, OgressConstants.ID_NOT_ASSIGNED));
     }
