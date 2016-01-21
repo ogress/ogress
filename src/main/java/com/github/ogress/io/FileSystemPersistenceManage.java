@@ -27,13 +27,13 @@ public class FileSystemPersistenceManage implements OgressDb {
 
     @NotNull
     @Override
-    public OgressObject getRoot() {
+    public Object getRoot() {
         //TODO:
         return null;
     }
 
     @Override
-    public void setRoot(@NotNull OgressObject newRoot) {
+    public void setRoot(@NotNull Object newRoot) {
         //TODO:
     }
 

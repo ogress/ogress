@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 public interface OgressObjectSerializer {
     @NotNull
-    byte[] toRawData(@NotNull OgressObject object);
+    byte[] toRawData(@NotNull Object object);
 
     @Nullable
-    OgressObject fromRawData(@NotNull byte[] data);
+    Object fromRawData(@NotNull byte[] data);
 }

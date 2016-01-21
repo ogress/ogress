@@ -18,10 +18,15 @@ public final class Check {
         isTrue(o != null, message);
     }
 
+    @Contract("null,_ -> fail")
+    public static void notEmpty(@Nullable String s, @NotNull LazyValue<String> message) {
+        isTrue(s != null && !s.isEmpty(), message);
+    }
+
     @Contract("false,_ -> fail")
     public static void isTrue(boolean v, @NotNull LazyValue<String> message) {
         if (!v) {
-            throw new IllegalStateException(message.get());
+            throw new IllegalArgumentException(message.get());
         }
     }
 }

@@ -19,10 +19,10 @@ public class PropertiesObjectSerializer implements OgressObjectSerializer {
 
     @NotNull
     @Override
-    public byte[] toRawData(@NotNull OgressObject ogressObject) {
+    public byte[] toRawData(@NotNull Object ogressObject) {
         //noinspection MismatchedQueryAndUpdateOfCollection
         Properties p = new Properties();
-        p.setProperty(TYPE_NAME_PROP, ogressObject.getOgressTypeName());
+        //p.setProperty(TYPE_NAME_PROP, ogressObject.getOgressTypeName());
 
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -37,7 +37,7 @@ public class PropertiesObjectSerializer implements OgressObjectSerializer {
 
     @Nullable
     @Override
-    public OgressObject fromRawData(@NotNull byte[] bytes) {
+    public Object fromRawData(@NotNull byte[] bytes) {
         return null;
     }
 }

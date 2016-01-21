@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.IdentityHashMap;
 
+import static com.github.ogress.util.OgressUtils.getObjectTypeName;
 import static com.github.ogress.util.OgressUtils.prepareObjectSchema;
 
 //TODO: synchronization

@@ -14,11 +14,27 @@ public class OgressUtils {
 
     @NotNull
     public static String getObjectTypeName(@NotNull Object o) {
-        OgressType type = o.getClass().getAnnotation(OgressType.class);
+        Class<?> cls = o.getClass();
+        checkOgressTypeAnnotationConsistency(cls);
+        OgressType type = cls.getAnnotation(OgressType.class);
         Check.notNull(type, () -> "OgressType annotation is missed! Object: " + o);
         String typeName = type.value();
-        Check.notNull(typeName, () -> "OgressType::typeName is empty! Object: " + o);
+        Check.notEmpty(typeName, () -> "OgressType::typeName is empty! Object: " + o);
         return typeName;
+    }
+
+    private static void checkOgressTypeAnnotationConsistency(@NotNull Class cls) {
+        OgressType type = (OgressType) cls.getAnnotation(OgressType.class);
+        if (type != null) {
+            Check.isTrue(!cls.isInterface(), () -> "Interfaces are not allowed to have @OgressType annotation: " + cls);
+            Check.isTrue(!Modifier.isAbstract(cls.getModifiers()), () -> "Abstract classes are not allowed to have @OgressType annotation: " + cls);
+        }
+        if (cls.getSuperclass() != Object.class) {
+            checkOgressTypeAnnotationConsistency(cls.getSuperclass());
+        }
+        for (Class i : cls.getInterfaces()) {
+            checkOgressTypeAnnotationConsistency(i);
+        }
     }
 
     @NotNull
