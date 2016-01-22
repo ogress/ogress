@@ -1,8 +1,8 @@
 package com.github.ogress.util;
 
+import com.github.ogress.FieldAccessor;
 import com.github.ogress.OgressField;
 import com.github.ogress.OgressObjectSchema;
-import com.github.ogress.OgressObjectSchema.FieldAccessor;
 import com.github.ogress.OgressType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -11,8 +11,11 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toMap;
 
 public class OgressUtils {
 
@@ -46,52 +49,54 @@ public class OgressUtils {
 
         // process all annotations and store getters/setters for fields
         Map<String, Field> ogressFields = getOgressFields(cls);
-        Map<String, FieldAccessor> adapters = getFieldAccessors(cls, ogressFields);
+        Map<String, FieldAccessor> adapters = ogressFields.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> getFieldAccessor(cls, e.getValue())));
 
         return new OgressObjectSchema(typeName, adapters);
     }
 
     @NotNull
-    public static Map<String, FieldAccessor> getFieldAccessors(@NotNull Class<?> cls, @NotNull Map<String, Field> fieldMap) {
-        Map<String, FieldAccessor> res = new HashMap<>();
-        for (Map.Entry<String, Field> e : fieldMap.entrySet()) {
-            // if field is public -> use direct accessor
-            Field field = e.getValue();
-            int m = field.getModifiers();
-            if (Modifier.isPublic(m)) {
-                res.put(e.getKey(), new FieldAccessor(field, null, null));
-                continue;
-            }
-            // search for getter & setter methods using naming convention
-            Method getter = findGetterMethod(cls, field);
-            Method setter = findSetterMethod(cls, field);
-            Check.notNull(getter, () -> "No public access or getter for field: " + field);
-            Check.notNull(setter, () -> "No public access or setter for field: " + field);
+    public static FieldAccessor getFieldAccessor(@NotNull Class<?> cls, @NotNull Field field) {
+        int m = field.getModifiers();
+        Check.isTrue(!Modifier.isFinal(m), () -> "Field is final: " + field);
+        Check.isTrue(!Modifier.isStatic(m), () -> "Field is static: " + field);
+        Check.isTrue(field.getDeclaringClass().isAssignableFrom(cls), () -> "Wrong field class: " + field + ", class: " + cls);
+        if (Modifier.isPublic(m)) { // if field is public -> use direct accessor
+            return new FieldAccessor(field, null, null);
         }
-        return res;
+        // search for getter & setter methods using naming convention
+        Method getter = findGetterMethod(cls, field);
+        Method setter = findSetterMethod(cls, field);
+        Check.notNull(getter, () -> "No public access or getter for field: " + field);
+        Check.notNull(setter, () -> "No public access or setter for field: " + field);
+        return new FieldAccessor(null, getter, setter);
     }
 
     @Nullable
-    public static Method findGetterMethod(@NotNull Class<?> cls, @NotNull Field field) {
-        Class<?> fieldClass = field.getType();
-        if (fieldClass == Boolean.class || fieldClass == Boolean.TYPE) {
-            Method res = findPublicMethodByNameAndSignature(cls, "is" + capitalize(field.getName()), fieldClass, 0);
+    private static Method findGetterMethod(@NotNull Class<?> cls, @NotNull Field field) {
+        Class<?> fieldType = field.getType();
+        if (fieldType == Boolean.class || fieldType == Boolean.TYPE) {
+            Method res = findPublicMethodByNameAndSignature(cls, "is" + capitalize(field.getName()), fieldType);
             if (res != null) {
                 return res;
             }
         }
-        return findPublicMethodByNameAndSignature(cls, "get" + capitalize(field.getName()), fieldClass, 0);
+        return findPublicMethodByNameAndSignature(cls, "get" + capitalize(field.getName()), fieldType);
     }
 
     @Nullable
     public static Method findSetterMethod(@NotNull Class<?> cls, @NotNull Field field) {
-        return findPublicMethodByNameAndSignature(cls, "get" + capitalize(field.getName()), field.getType(), 0);
+        return findPublicMethodByNameAndSignature(cls, "set" + capitalize(field.getName()), null, field.getType());
     }
 
     @Nullable
-    private static Method findPublicMethodByNameAndSignature(Class<?> cls, @NotNull String methodName, Class<?> returnType, int numberOfParams) {
+    private static Method findPublicMethodByNameAndSignature(@NotNull Class<?> cls, @NotNull String methodName, @Nullable Class<?> returnType, Class<?>... paramTypes) {
         for (Method m : cls.getMethods()) {
-            if (m.getName().equals(methodName) && m.getReturnType() == returnType && m.getParameterCount() == numberOfParams) {
+            int modifiers = m.getModifiers();
+            if (!Modifier.isStatic(modifiers)
+                    && m.getName().equals(methodName)
+                    && (m.getReturnType() == returnType || returnType == null)
+                    && m.getParameterCount() == paramTypes.length
+                    && Arrays.equals(paramTypes, m.getParameterTypes())) {
                 return m;
             }
         }
