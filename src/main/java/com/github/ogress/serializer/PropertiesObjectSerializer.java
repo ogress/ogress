@@ -1,6 +1,5 @@
 package com.github.ogress.serializer;
 
-import com.github.ogress.OgressObjectSchemaRegistry;
 import com.github.ogress.OgressObjectSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,10 +10,8 @@ import java.util.Properties;
 
 public class PropertiesObjectSerializer implements OgressObjectSerializer {
     private static final String TYPE_NAME_PROP = "__type";
-    private OgressObjectSchemaRegistry schemaRegistry;
 
-    public PropertiesObjectSerializer(@NotNull OgressObjectSchemaRegistry schemaRegistry) {
-        this.schemaRegistry = schemaRegistry;
+    public PropertiesObjectSerializer() {
     }
 
     @NotNull

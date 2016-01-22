@@ -6,6 +6,7 @@ public final class OgressObjectInfo {
     @NotNull
     public final OgressObjectSchema schema;
     public final long id;
+    public Object visitMark;
 
     public OgressObjectInfo(@NotNull OgressObjectSchema schema, long id) {
         this.schema = schema;

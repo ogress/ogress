@@ -1,6 +1,7 @@
 package com.github.ogress.util;
 
 import com.github.ogress.FieldAccessor;
+import com.github.ogress.FieldInfo;
 import com.github.ogress.OgressField;
 import com.github.ogress.OgressObjectSchema;
 import com.github.ogress.OgressType;
@@ -13,6 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -47,11 +49,12 @@ public class OgressUtils {
     public static OgressObjectSchema prepareObjectSchema(Class<?> cls) {
         String typeName = getObjectTypeName(cls);
 
-        // process all annotations and store getters/setters for fields
+        // process all annotations and store getters/setters for fieldByOgressName
         Map<String, Field> ogressFields = getOgressFields(cls);
-        Map<String, FieldAccessor> adapters = ogressFields.entrySet().stream().collect(toMap(Map.Entry::getKey, e -> getFieldAccessor(cls, e.getValue())));
+        Map<String, FieldInfo> fieldInfos = ogressFields.entrySet().stream()
+                .collect(toMap(Map.Entry::getKey, e -> new FieldInfo(e.getValue(), e.getKey(), getFieldAccessor(cls, e.getValue()))));
 
-        return new OgressObjectSchema(typeName, adapters);
+        return new OgressObjectSchema(typeName, fieldInfos);
     }
 
     @NotNull
@@ -136,4 +139,8 @@ public class OgressUtils {
         return res;
     }
 
+    public static boolean isReferenceType(@NotNull FieldInfo f) {
+        Class<?> type = f.field.getType();
+        return !type.isPrimitive() && !type.isArray() && !List.class.isAssignableFrom(type);
+    }
 }
