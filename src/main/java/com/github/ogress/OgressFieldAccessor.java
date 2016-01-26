@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class FieldAccessor {
+public class OgressFieldAccessor {
     @Nullable
     public final Field field;
     @Nullable
@@ -15,7 +15,7 @@ public class FieldAccessor {
     @Nullable
     public final Method setter;
 
-    public FieldAccessor(@Nullable Field field, @Nullable Method getter, @Nullable Method setter) {
+    public OgressFieldAccessor(@Nullable Field field, @Nullable Method getter, @Nullable Method setter) {
         this.field = field;
         this.getter = getter;
         this.setter = setter;

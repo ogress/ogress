@@ -1,10 +1,12 @@
 package com.github.ogress.util;
 
-import com.github.ogress.FieldAccessor;
-import com.github.ogress.FieldInfo;
 import com.github.ogress.OgressField;
+import com.github.ogress.OgressFieldAccessor;
+import com.github.ogress.OgressFieldInfo;
 import com.github.ogress.OgressObjectSchema;
 import com.github.ogress.OgressType;
+import com.github.ogress.serializer.DefaultSerializers;
+import com.github.ogress.serializer.OgressFieldSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +23,15 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 public class OgressUtils {
+
+    public static Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    public static final Map<Class, OgressFieldSerializer> FIELD_SERIALIZERS = new HashMap<>();
+
+    static {
+        //todo:
+        FIELD_SERIALIZERS.put(Integer.class, DefaultSerializers.INTEGER_FIELD_SERIALIZER);
+        FIELD_SERIALIZERS.put(Integer.TYPE, DefaultSerializers.INTEGER_FIELD_SERIALIZER);
+    }
 
     @NotNull
     public static String getObjectTypeName(@NotNull Class<?> cls) {
@@ -51,27 +63,27 @@ public class OgressUtils {
 
         // process all annotations and store getters/setters for fieldByOgressName
         Map<String, Field> ogressFields = getOgressFields(cls);
-        Map<String, FieldInfo> fieldInfos = ogressFields.entrySet().stream()
-                .collect(toMap(Map.Entry::getKey, e -> new FieldInfo(e.getValue(), e.getKey(), getFieldAccessor(cls, e.getValue()))));
+        Map<String, OgressFieldInfo> fieldInfos = ogressFields.entrySet().stream()
+                .collect(toMap(Map.Entry::getKey, e -> new OgressFieldInfo(e.getValue(), e.getKey(), getFieldAccessor(cls, e.getValue()))));
 
         return new OgressObjectSchema(typeName, fieldInfos);
     }
 
     @NotNull
-    public static FieldAccessor getFieldAccessor(@NotNull Class<?> cls, @NotNull Field field) {
+    public static OgressFieldAccessor getFieldAccessor(@NotNull Class<?> cls, @NotNull Field field) {
         int m = field.getModifiers();
         Check.isTrue(!Modifier.isFinal(m), () -> "Field is final: " + field);
         Check.isTrue(!Modifier.isStatic(m), () -> "Field is static: " + field);
         Check.isTrue(field.getDeclaringClass().isAssignableFrom(cls), () -> "Wrong field class: " + field + ", class: " + cls);
         if (Modifier.isPublic(m)) { // if field is public -> use direct accessor
-            return new FieldAccessor(field, null, null);
+            return new OgressFieldAccessor(field, null, null);
         }
         // search for getter & setter methods using naming convention
         Method getter = findGetterMethod(cls, field);
         Method setter = findSetterMethod(cls, field);
         Check.notNull(getter, () -> "No public access or getter for field: " + field);
         Check.notNull(setter, () -> "No public access or setter for field: " + field);
-        return new FieldAccessor(null, getter, setter);
+        return new OgressFieldAccessor(null, getter, setter);
     }
 
     @Nullable
@@ -139,8 +151,17 @@ public class OgressUtils {
         return res;
     }
 
-    public static boolean isReferenceType(@NotNull FieldInfo f) {
-        Class<?> type = f.field.getType();
+    public static boolean isReferenceType(@NotNull Class<?> type) {
         return !type.isPrimitive() && !type.isArray() && !List.class.isAssignableFrom(type);
+    }
+
+    @NotNull
+    public static OgressFieldSerializer getSerializer(@NotNull Class<?> type) {
+        if (isReferenceType(type)) {
+            return DefaultSerializers.REFERENCE_FIELD_SERIALIZER;
+        }
+        OgressFieldSerializer res = FIELD_SERIALIZERS.get(type);
+        Check.notNull(res, () -> "Can't find serializer for " + type);
+        return res;
     }
 }

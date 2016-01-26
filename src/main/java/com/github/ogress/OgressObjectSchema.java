@@ -9,19 +9,24 @@ import java.util.Map;
 public final class OgressObjectSchema {
     @NotNull
     public final String typeName;
-    @NotNull
-    public final Map<String, FieldInfo> fieldByOgressName;
-    @NotNull
-    public FieldInfo[] fields;
-    @NotNull
-    public FieldInfo[] referenceFields;
 
-    public OgressObjectSchema(@NotNull String typeName, @NotNull Map<String, FieldInfo> fieldByOgressName) {
+    @NotNull
+    public final Class<?> typeClass;
+
+    @NotNull
+    public final Map<String, OgressFieldInfo> fieldByOgressName;
+
+    @NotNull
+    public OgressFieldInfo[] fields;
+
+    @NotNull
+    public OgressFieldInfo[] referenceFields;
+
+    public OgressObjectSchema(@NotNull String typeName, @NotNull Class<?> typeClass, @NotNull Map<String, OgressFieldInfo> fieldByOgressName) {
         this.typeName = typeName;
+        this.typeClass = typeClass;
         this.fieldByOgressName = fieldByOgressName;
-        this.fields = fieldByOgressName.values().toArray(new FieldInfo[fieldByOgressName.size()]);
-        this.referenceFields = Arrays.stream(fields).filter(OgressUtils::isReferenceType).toArray(FieldInfo[]::new);
+        this.fields = fieldByOgressName.values().toArray(new OgressFieldInfo[fieldByOgressName.size()]);
+        this.referenceFields = Arrays.stream(fields).filter(f -> OgressUtils.isReferenceType(f.field.getType())).toArray(OgressFieldInfo[]::new);
     }
-
-
 }

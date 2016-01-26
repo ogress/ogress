@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface OgressDb {
 
+    void registerType(Class<?> ... types);
+
     @NotNull
     Object getRoot();
 
@@ -12,6 +14,4 @@ public interface OgressDb {
     void flush();
 
     void cleanup();
-
-    void close();
 }

@@ -1,6 +1,6 @@
 package com.github.ogress.util;
 
-import com.github.ogress.FieldAccessor;
+import com.github.ogress.OgressFieldAccessor;
 import com.github.ogress.model.ChildBean;
 import com.github.ogress.model.ChildBeanWithFields;
 import com.github.ogress.model.ComplexChildBean;
@@ -113,7 +113,7 @@ public class OgressUtilsTest extends Assert {
     @Test
     public void getFieldAccessorReturnsCorrectResultForPublicField() throws NoSuchFieldException {
         Field field = SimpleBean.class.getField("name");
-        FieldAccessor accessor = OgressUtils.getFieldAccessor(SimpleBean.class, field);
+        OgressFieldAccessor accessor = OgressUtils.getFieldAccessor(SimpleBean.class, field);
         assertNotNull(accessor);
         assertEquals(field, accessor.field);
         assertNull(accessor.getter);
@@ -123,7 +123,7 @@ public class OgressUtilsTest extends Assert {
     @Test
     public void getFieldAccessorReturnsCorrectResultForPublicParentField() throws NoSuchFieldException {
         Field field = ChildBeanWithFields.class.getField("publicParentField");
-        FieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
+        OgressFieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
         assertNotNull(accessor);
         assertEquals(field, accessor.field);
         assertNull(accessor.getter);
@@ -133,7 +133,7 @@ public class OgressUtilsTest extends Assert {
     @Test
     public void getFieldAccessorReturnsCorrectResultForGetterAndSetter() throws NoSuchFieldException, NoSuchMethodException {
         Field field = ChildBeanWithFields.class.getDeclaredField("privateChildField");
-        FieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
+        OgressFieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
         assertNotNull(accessor);
         assertNull(accessor.field);
 
@@ -149,7 +149,7 @@ public class OgressUtilsTest extends Assert {
     @Test
     public void getFieldAccessorReturnsCorrectResultForGetterAndSetterInParent() throws NoSuchFieldException, NoSuchMethodException {
         Field field = ParentBeanWithFields.class.getDeclaredField("privateParentField");
-        FieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
+        OgressFieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
         assertNotNull(accessor);
         assertNull(accessor.field);
 
@@ -165,7 +165,7 @@ public class OgressUtilsTest extends Assert {
     @Test
     public void getFieldAccessorReturnsCorrectResultForBooleanGetterAndSetter() throws NoSuchFieldException, NoSuchMethodException {
         Field field = ChildBeanWithFields.class.getDeclaredField("privateChildFieldBoolean");
-        FieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
+        OgressFieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
         assertNotNull(accessor);
         assertNull(accessor.field);
 
@@ -181,7 +181,7 @@ public class OgressUtilsTest extends Assert {
     @Test
     public void getFieldAccessorReturnsCorrectResultForSetterWithReturn() throws NoSuchFieldException, NoSuchMethodException {
         Field field = ChildBeanWithFields.class.getDeclaredField("privateChildField2");
-        FieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
+        OgressFieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
         assertNotNull(accessor);
         assertNull(accessor.field);
 

@@ -8,5 +8,5 @@ public interface OgressObjectSerializer {
     byte[] toRawData(@NotNull Object object);
 
     @Nullable
-    Object fromRawData(@NotNull byte[] data);
+    Object fromRawData(@NotNull byte[] bytes, @NotNull OgressFieldInfo fieldInfo);
 }

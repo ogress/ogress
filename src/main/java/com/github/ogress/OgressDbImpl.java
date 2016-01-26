@@ -5,6 +5,7 @@ import com.github.ogress.serializer.PropertiesObjectSerializer;
 import com.github.ogress.util.Check;
 import com.github.ogress.util.EmptyOgressObject;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.IdentityHashMap;
 import java.util.Properties;
@@ -33,14 +34,22 @@ public class OgressDbImpl implements OgressDb {
 
     private static long traversalNumber = 0;
 
-    private OgressDbImpl(@NotNull OgressObjectSerializer serializer, @NotNull OgressIOAdapter ioAdapter) {
-        this.serializer = serializer;
-        this.ioAdapter = ioAdapter;
+    private OgressDbImpl() {
+        this.serializer = new PropertiesObjectSerializer(this);
+        this.ioAdapter = new FileSystemIOAdapter();
     }
 
     @NotNull
     public static OgressDbImpl create(@NotNull Properties properties) {
-        return new OgressDbImpl(new PropertiesObjectSerializer(), new FileSystemIOAdapter());
+        return new OgressDbImpl();
+    }
+
+    @Override
+    public void registerType(Class<?>... types) {
+        for (Class<?> t : types) {
+            OgressObjectSchema schema = prepareObjectSchema(t);
+            schemaRegistry.addSchema(schema);
+        }
     }
 
     @NotNull
@@ -78,7 +87,7 @@ public class OgressDbImpl implements OgressDb {
         f.accept(o, info);
         info.visitMark = visitMark;
         try {
-            for (FieldInfo i : info.schema.referenceFields) {
+            for (OgressFieldInfo i : info.schema.referenceFields) {
                 Object ref = i.accessor.getValue(o);
                 if (ref != null) {
                     visit(ref, visitMark, f);
@@ -94,26 +103,25 @@ public class OgressDbImpl implements OgressDb {
         //todo:
     }
 
-    @Override
-    public void close() {
-        //todo:
-    }
-
     @NotNull
     private OgressObjectInfo attach(@NotNull Object o) {
-        OgressObjectInfo info = objectsMap.get(o);
+        OgressObjectInfo info = getObjectInfo(o);
         if (info == null) {
-
             String typeName = getObjectTypeName(o.getClass());
-            OgressObjectSchema schema = schemaRegistry.getByType(typeName);
-            if (schema == null) {
-                schema = prepareObjectSchema(o.getClass());
-            }
+            OgressObjectSchema schema = schemaRegistry.getSchemaByTypeName(typeName);
+            Check.notNull(schema, () -> "Type is not registered: " + o.getClass());
             info = new OgressObjectInfo(schema, OgressConstants.ID_NOT_ASSIGNED);
             objectsMap.put(o, info);
         }
         return info;
     }
 
+    @Nullable
+    public OgressObjectInfo getObjectInfo(@NotNull Object o) {
+        return objectsMap.get(o);
+    }
 
+    public OgressObjectSchemaRegistry getObjectSchemaRegistry() {
+        return schemaRegistry;
+    }
 }
