@@ -72,10 +72,11 @@ public final class PropertiesObjectSerializer implements OgressObjectSerializer 
         if (val == null) {
             return null;
         }
-        OgressObjectInfo info = db.getObjectInfo(object);
-        Check.notNull(info, () -> "No OgressObjectInfo for object: " + object + " referenced by: " + field);
+        if (field.isReference) {
+            return db.serializeReference(val);
+        }
         //noinspection unchecked
-        return field.serializer.toString(val, info);
+        return field.valueSerializer.toString(val);
     }
 
 }

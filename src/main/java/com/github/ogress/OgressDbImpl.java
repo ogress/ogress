@@ -124,4 +124,17 @@ public class OgressDbImpl implements OgressDb {
     public OgressObjectSchemaRegistry getObjectSchemaRegistry() {
         return schemaRegistry;
     }
+
+    @NotNull
+    public String serializeReference(@NotNull Object object) {
+        OgressObjectInfo objectInfo = getObjectInfo(object);
+        Check.notNull(objectInfo, () -> "No OgressObjectInfo for object: " + object);
+        return objectInfo.schema.typeName + ":" + objectInfo.id;
+    }
+
+    @NotNull
+    public Object deserializeReference(@NotNull String val) {
+        //todo:
+        return null;
+    }
 }

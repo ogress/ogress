@@ -5,8 +5,8 @@ import com.github.ogress.OgressFieldAccessor;
 import com.github.ogress.OgressFieldInfo;
 import com.github.ogress.OgressObjectSchema;
 import com.github.ogress.OgressType;
-import com.github.ogress.serializer.DefaultSerializers;
-import com.github.ogress.serializer.OgressFieldSerializer;
+import com.github.ogress.serializer.ValueSerializers;
+import com.github.ogress.serializer.OgressValueSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,12 +25,12 @@ import static java.util.stream.Collectors.toMap;
 public class OgressUtils {
 
     public static Charset UTF8_CHARSET = Charset.forName("UTF-8");
-    public static final Map<Class, OgressFieldSerializer> FIELD_SERIALIZERS = new HashMap<>();
+    public static final Map<Class, OgressValueSerializer> FIELD_SERIALIZERS = new HashMap<>();
 
     static {
         //todo:
-        FIELD_SERIALIZERS.put(Integer.class, DefaultSerializers.INTEGER_FIELD_SERIALIZER);
-        FIELD_SERIALIZERS.put(Integer.TYPE, DefaultSerializers.INTEGER_FIELD_SERIALIZER);
+        FIELD_SERIALIZERS.put(Integer.class, ValueSerializers.INTEGER_FIELD_SERIALIZER);
+        FIELD_SERIALIZERS.put(Integer.TYPE, ValueSerializers.INTEGER_FIELD_SERIALIZER);
     }
 
     @NotNull
@@ -156,12 +156,12 @@ public class OgressUtils {
     }
 
     @NotNull
-    public static OgressFieldSerializer getSerializer(@NotNull Class<?> type) {
+    public static OgressValueSerializer getValueSerializer(@NotNull Class<?> type) {
         if (isReferenceType(type)) {
-            return DefaultSerializers.REFERENCE_FIELD_SERIALIZER;
+            return ValueSerializers.REFERENCE_FIELD_SERIALIZER;
         }
-        OgressFieldSerializer res = FIELD_SERIALIZERS.get(type);
-        Check.notNull(res, () -> "Can't find serializer for " + type);
+        OgressValueSerializer res = FIELD_SERIALIZERS.get(type);
+        Check.notNull(res, () -> "Can't find valueSerializer for " + type);
         return res;
     }
 }

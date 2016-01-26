@@ -1,8 +1,9 @@
 package com.github.ogress;
 
-import com.github.ogress.serializer.OgressFieldSerializer;
+import com.github.ogress.serializer.OgressValueSerializer;
 import com.github.ogress.util.OgressUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
@@ -18,14 +19,14 @@ public class OgressFieldInfo {
 
     public final boolean isReference;
 
-    @NotNull
-    public final OgressFieldSerializer serializer;
+    @Nullable
+    public final OgressValueSerializer valueSerializer;
 
     public OgressFieldInfo(@NotNull Field field, @NotNull String ogressFieldName, @NotNull OgressFieldAccessor accessor) {
         this.field = field;
         this.ogressFieldName = ogressFieldName;
         this.accessor = accessor;
         this.isReference = OgressUtils.isReferenceType(field.getType());
-        serializer = OgressUtils.getSerializer(field.getType());
+        valueSerializer = isReference ? null : OgressUtils.getValueSerializer(field.getType());
     }
 }
