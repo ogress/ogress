@@ -7,7 +7,9 @@ import com.github.ogress.util.EmptyOgressObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
@@ -22,6 +24,10 @@ public class OgressDbImpl implements OgressDb {
     //todo: fix sync issues.
     @NotNull
     private IdentityHashMap<Object, OgressObjectInfo> objectsMap = new IdentityHashMap<>();
+
+    //todo: clean after startup
+    @NotNull
+    private final Map<Long, Object> startupMap = new HashMap<>();
 
     @NotNull
     private OgressObjectSerializer serializer;
@@ -40,8 +46,14 @@ public class OgressDbImpl implements OgressDb {
     }
 
     @NotNull
-    public static OgressDbImpl create(@NotNull Properties properties) {
-        return new OgressDbImpl();
+    public static OgressDbImpl newInstance(@NotNull Properties properties) {
+        //todo: parse properties for IO adapter & serializer instances.
+        OgressDbImpl db = new OgressDbImpl();
+        byte[] rootData = db.ioAdapter.readObjectData(0L, "root");
+        Object root = db.serializer.fromRawData(rootData);
+        //todo:
+        db.setRoot(root);
+        return db;
     }
 
     @Override
@@ -86,15 +98,11 @@ public class OgressDbImpl implements OgressDb {
         }
         f.accept(o, info);
         info.visitMark = visitMark;
-        try {
-            for (OgressFieldInfo i : info.schema.referenceFields) {
-                Object ref = i.accessor.getValue(o);
-                if (ref != null) {
-                    visit(ref, visitMark, f);
-                }
+        for (OgressFieldInfo i : info.schema.referenceFields) {
+            Object ref = i.accessor.getValue(o);
+            if (ref != null) {
+                visit(ref, visitMark, f);
             }
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -134,7 +142,26 @@ public class OgressDbImpl implements OgressDb {
 
     @NotNull
     public Object deserializeReference(@NotNull String val) {
-        //todo:
-        return null;
+        int tSep = val.indexOf(':');
+        Check.isTrue(tSep > 0, () -> "Illegal serialized form of reference: " + val);
+        String typeName = val.substring(0, tSep);
+        OgressObjectSchema schema = schemaRegistry.getSchemaByTypeName(typeName);
+        Check.notNull(schema, () -> "Type is not registered: " + typeName);
+        long id = Long.parseLong(val.substring(tSep + 1));
+
+        Object res = startupMap.get(id);
+        if (res != null) {
+            OgressObjectSchema schema2 = schemaRegistry.getSchemaByTypeName(typeName);
+            Check.isTrue(schema == schema2, () -> "Duplicate schema for type: " + typeName + ", Oid:" + id);
+            return res;
+        }
+        try {
+            res = schema.typeClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new IllegalStateException("Exception in  " + schema.typeClass + " constructor!", e);
+        }
+        attach(res);
+        startupMap.put(id, res);
+        return res;
     }
 }

@@ -5,7 +5,7 @@ import com.github.ogress.OgressFieldAccessor;
 import com.github.ogress.OgressFieldInfo;
 import com.github.ogress.OgressObjectSchema;
 import com.github.ogress.OgressType;
-import com.github.ogress.serializer.ValueSerializers;
+import com.github.ogress.serializer.OgressValueDeserializer;
 import com.github.ogress.serializer.OgressValueSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -20,38 +20,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.ogress.serializer.ValueSerializers.FIELD_DESERIALIZERS;
+import static com.github.ogress.serializer.ValueSerializers.FIELD_SERIALIZERS;
 import static java.util.stream.Collectors.toMap;
 
 public class OgressUtils {
 
     public static Charset UTF8_CHARSET = Charset.forName("UTF-8");
-    public static final Map<Class, OgressValueSerializer> FIELD_SERIALIZERS = new HashMap<>();
-
-    static {
-        //todo:
-        FIELD_SERIALIZERS.put(Integer.class, ValueSerializers.INTEGER_FIELD_SERIALIZER);
-        FIELD_SERIALIZERS.put(Integer.TYPE, ValueSerializers.INTEGER_FIELD_SERIALIZER);
-    }
 
     @NotNull
     public static String getObjectTypeName(@NotNull Class<?> cls) {
         checkOgressTypeAnnotationConsistency(cls);
         OgressType type = cls.getAnnotation(OgressType.class);
-        Check.notNull(type, () -> "OgressType annotation is missed! Object: " + cls);
+        Check.notNull(type, () -> "OgressType annotation is missed! Class: " + cls);
         String typeName = type.value();
-        Check.notEmpty(typeName, () -> "OgressType::typeName is empty! Object: " + cls);
+        Check.notEmpty(typeName, () -> "OgressType.typeName is empty! Class: " + cls);
         return typeName;
     }
 
     private static void checkOgressTypeAnnotationConsistency(@NotNull Class cls) {
+        if (cls  == Object.class) {
+            return;
+        }
         OgressType type = (OgressType) cls.getAnnotation(OgressType.class);
         if (type != null) {
             Check.isTrue(!cls.isInterface(), () -> "Interfaces are not allowed to have @OgressType annotation: " + cls);
             Check.isTrue(!Modifier.isAbstract(cls.getModifiers()), () -> "Abstract classes are not allowed to have @OgressType annotation: " + cls);
         }
-        if (cls.getSuperclass() != Object.class) {
-            checkOgressTypeAnnotationConsistency(cls.getSuperclass());
-        }
+        checkOgressTypeAnnotationConsistency(cls.getSuperclass());
         for (Class i : cls.getInterfaces()) {
             checkOgressTypeAnnotationConsistency(i);
         }
@@ -66,7 +62,7 @@ public class OgressUtils {
         Map<String, OgressFieldInfo> fieldInfos = ogressFields.entrySet().stream()
                 .collect(toMap(Map.Entry::getKey, e -> new OgressFieldInfo(e.getValue(), e.getKey(), getFieldAccessor(cls, e.getValue()))));
 
-        return new OgressObjectSchema(typeName, fieldInfos);
+        return new OgressObjectSchema(typeName, cls, fieldInfos);
     }
 
     @NotNull
@@ -155,13 +151,23 @@ public class OgressUtils {
         return !type.isPrimitive() && !type.isArray() && !List.class.isAssignableFrom(type);
     }
 
-    @NotNull
+    @Nullable
     public static OgressValueSerializer getValueSerializer(@NotNull Class<?> type) {
         if (isReferenceType(type)) {
-            return ValueSerializers.REFERENCE_FIELD_SERIALIZER;
+            return null;
         }
         OgressValueSerializer res = FIELD_SERIALIZERS.get(type);
         Check.notNull(res, () -> "Can't find valueSerializer for " + type);
+        return res;
+    }
+
+    @Nullable
+    public static OgressValueDeserializer getValueDeserializer(@NotNull Class<?> type) {
+        if (isReferenceType(type)) {
+            return null;
+        }
+        OgressValueDeserializer res = FIELD_DESERIALIZERS.get(type);
+        Check.notNull(res, () -> "Can't find valueDeserializer for " + type);
         return res;
     }
 }

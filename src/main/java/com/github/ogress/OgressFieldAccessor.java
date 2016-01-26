@@ -21,11 +21,28 @@ public class OgressFieldAccessor {
         this.setter = setter;
     }
 
-    public Object getValue(@NotNull Object o) throws IllegalAccessException, InvocationTargetException {
-        if (field != null) {
-            return field.get(o);
+    public Object getValue(@NotNull Object o) {
+        try {
+            if (field != null) {
+                return field.get(o);
+            }
+            assert getter != null;
+            return getter.invoke(o);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new IllegalStateException("Failed to get field value using " + (field != null ? field : getter));
         }
-        assert getter != null;
-        return getter.invoke(o);
+    }
+
+    public void setValue(@NotNull Object o, @Nullable Object value) {
+        try {
+            if (field != null) {
+                field.set(o, value);
+                return;
+            }
+            assert setter != null;
+            setter.invoke(o, value);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new IllegalStateException("Failed to set field value using " + (field != null ? field : setter));
+        }
     }
 }
