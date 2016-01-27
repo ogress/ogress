@@ -1,16 +1,18 @@
 package com.github.ogress;
 
-import com.github.ogress.io.FileSystemIOAdapter;
+import com.github.ogress.io.StubIOAdapter;
 import com.github.ogress.serializer.PropertiesObjectSerializer;
 import com.github.ogress.util.Check;
 import com.github.ogress.util.EmptyOgressObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.function.BiConsumer;
 
 import static com.github.ogress.util.OgressUtils.getObjectTypeName;
@@ -36,28 +38,33 @@ public class OgressDbImpl implements OgressDb {
     private OgressIOAdapter ioAdapter;
 
     @NotNull
-    private Object rootObject = new EmptyOgressObject();
+    private Object rootObject = EmptyOgressObject.INSTANCE;
 
     private static long traversalNumber = 0;
 
-    private OgressDbImpl() {
+    @NotNull
+    private final Map<String, Object> properties;
+
+    private OgressDbImpl(@NotNull Map<String, Object> properties) {
+        this.properties = properties;
         this.serializer = new PropertiesObjectSerializer(this);
-        this.ioAdapter = new FileSystemIOAdapter();
+        this.ioAdapter = new StubIOAdapter(this);
     }
 
     @NotNull
-    public static OgressDbImpl newInstance(@NotNull Properties properties) {
+    public static OgressDbImpl newInstance(@NotNull Map<String, Object> properties) {
         //todo: parse properties for IO adapter & serializer instances.
-        OgressDbImpl db = new OgressDbImpl();
+        OgressDbImpl db = new OgressDbImpl(properties);
         byte[] rootData = db.ioAdapter.readObjectData(0L, "root");
         Object root = db.serializer.fromRawData(rootData);
-        //todo:
-        db.setRoot(root);
+        if (root != null) {
+            db.setRoot(root);
+        }
         return db;
     }
 
     @Override
-    public void registerType(Class<?>... types) {
+    public synchronized void registerType(Class<?>... types) {
         for (Class<?> t : types) {
             OgressObjectSchema schema = prepareObjectSchema(t);
             schemaRegistry.addSchema(schema);
@@ -71,37 +78,53 @@ public class OgressDbImpl implements OgressDb {
     }
 
     @Override
-    public void setRoot(@NotNull Object o) {
+    public synchronized void setRoot(@NotNull Object o) {
         Check.notNull(o, () -> "Root object can't be null!");
         attach(o);
         rootObject = o;
     }
 
     @Override
-    public void flush() {
+    public synchronized void flush() {
+        if (rootObject == EmptyOgressObject.INSTANCE) {
+            return;
+        }
         // first check that all graph is correct.
-        visit(rootObject, ++traversalNumber, (o, info) -> {
-            //do nothing, just check that graph has no errors.
-        });
+        checkAndAttachGraph();
 
         // and flush next
         visit(rootObject, ++traversalNumber, (o, info) -> {
             byte[] data = serializer.toRawData(o);
             ioAdapter.writeObjectData(info.id, data, info.schema.typeName);
         });
+
+        List<Map.Entry<Object, OgressObjectInfo>> values = new ArrayList<>(objectsMap.entrySet());
+        for (Map.Entry<Object, OgressObjectInfo> entry : values) {
+            OgressObjectInfo info = entry.getValue();
+            if (info.traversalNumber != traversalNumber) {
+                ioAdapter.deleteObjectData(info.id, info.schema.typeName);
+                objectsMap.remove(entry.getKey());
+            }
+        }
     }
 
-    private void visit(@NotNull Object o, @NotNull Object visitMark, @NotNull BiConsumer<Object, OgressObjectInfo> f) {
+    protected synchronized void checkAndAttachGraph() {
+        visit(rootObject, ++traversalNumber, (o, info) -> {
+            //do nothing, just check that graph has no errors.
+        });
+    }
+
+    private void visit(@NotNull Object o, long traversalNumber, @NotNull BiConsumer<Object, OgressObjectInfo> f) {
         OgressObjectInfo info = attach(o);
-        if (info.visitMark == visitMark) {
+        if (info.traversalNumber == traversalNumber) {
             return;
         }
+        info.traversalNumber = traversalNumber;
         f.accept(o, info);
-        info.visitMark = visitMark;
         for (OgressFieldInfo i : info.schema.referenceFields) {
             Object ref = i.accessor.getValue(o);
             if (ref != null) {
-                visit(ref, visitMark, f);
+                visit(ref, traversalNumber, f);
             }
         }
     }
@@ -109,6 +132,12 @@ public class OgressDbImpl implements OgressDb {
     @Override
     public void cleanup() {
         //todo:
+    }
+
+    @NotNull
+    @Override
+    public Map<String, Object> getProperties() {
+        return Collections.unmodifiableMap(properties);
     }
 
     @NotNull

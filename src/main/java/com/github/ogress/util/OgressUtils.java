@@ -39,7 +39,7 @@ public class OgressUtils {
     }
 
     private static void checkOgressTypeAnnotationConsistency(@NotNull Class cls) {
-        if (cls  == Object.class) {
+        if (cls == Object.class) {
             return;
         }
         OgressType type = (OgressType) cls.getAnnotation(OgressType.class);
@@ -47,7 +47,10 @@ public class OgressUtils {
             Check.isTrue(!cls.isInterface(), () -> "Interfaces are not allowed to have @OgressType annotation: " + cls);
             Check.isTrue(!Modifier.isAbstract(cls.getModifiers()), () -> "Abstract classes are not allowed to have @OgressType annotation: " + cls);
         }
-        checkOgressTypeAnnotationConsistency(cls.getSuperclass());
+        Class superclass = cls.getSuperclass();
+        if (superclass != null) {
+            checkOgressTypeAnnotationConsistency(superclass);
+        }
         for (Class i : cls.getInterfaces()) {
             checkOgressTypeAnnotationConsistency(i);
         }

@@ -37,12 +37,12 @@ public class OgressUtilsTest extends Assert {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getObjectTypeOfNoBeanThrowsIllegalArgumentException() {
+    public void getObjectTypeOfNoBeanThrowsException() {
         OgressUtils.getObjectTypeName(Object.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getTypeOfBeanWithIllegalTypeThrowsIllegalArgumentException() {
+    public void getTypeOfBeanWithIllegalTypeThrowsException() {
         OgressUtils.getObjectTypeName(BeanWithIllegalTypeName.class);
     }
 
@@ -53,7 +53,12 @@ public class OgressUtilsTest extends Assert {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getObjectTypeNameChildIsNoBeanThrowsIllegalArgumentException() {
+    public void getObjectTypeNameNotBeanWithInterfacesThrowsException() {
+        OgressUtils.getObjectTypeName(String.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getObjectTypeNameChildIsNoBeanThrowsException() {
         OgressUtils.getObjectTypeName(ChildOfAbstractParentNoBean.class);
     }
 
@@ -86,27 +91,27 @@ public class OgressUtilsTest extends Assert {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldWithNoNameThrowsIllegalArgumentException() {
+    public void getFieldWithNoNameThrowsException() {
         OgressUtils.getOgressFields(BeanWithIllegalFieldName.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldChecksStaticsAndThrowsIllegalArgumentException() {
+    public void getFieldChecksStaticsAndThrowsException() {
         OgressUtils.getOgressFields(BeanWithStaticField.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldChecksFinalsAndThrowsIllegalArgumentException() {
+    public void getFieldChecksFinalsAndThrowsException() {
         OgressUtils.getOgressFields(BeanWithFinalField.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldChecksForDuplicatesAndThrowsIllegalArgumentException() {
+    public void getFieldChecksForDuplicatesAndThrowsException() {
         OgressUtils.getOgressFields(BeanWithDuplicateFieldName.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldChecksForDuplicatesInParentsAndThrowsIllegalArgumentException() {
+    public void getFieldChecksForDuplicatesInParentsAndThrowsException() {
         OgressUtils.getOgressFields(BeanWithDuplicateFieldNameWithParent.class);
     }
 
@@ -179,7 +184,7 @@ public class OgressUtilsTest extends Assert {
     }
 
     @Test
-    public void getFieldAccessorReturnsCorrectResultForSetterWithReturn() throws NoSuchFieldException, NoSuchMethodException {
+    public void getFieldAccessorReturnsCorrectResultForSetterWithNonVoidReturn() throws NoSuchFieldException, NoSuchMethodException {
         Field field = ChildBeanWithFields.class.getDeclaredField("privateChildField2");
         OgressFieldAccessor accessor = OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
         assertNotNull(accessor);
@@ -191,43 +196,43 @@ public class OgressUtilsTest extends Assert {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldAccessorThrowsIllegalArgumentExceptionNoPublicGetter() throws NoSuchFieldException {
+    public void getFieldAccessorThrowsExceptionNoPublicGetter() throws NoSuchFieldException {
         Field field = BeanNoPublicGetter.class.getDeclaredField("field");
         OgressUtils.getFieldAccessor(BeanNoPublicGetter.class, field);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldAccessorThrowsIllegalArgumentExceptionNoPublicSetter() throws NoSuchFieldException {
+    public void getFieldAccessorThrowsExceptionNoPublicSetter() throws NoSuchFieldException {
         Field field = BeanNoPublicSetter.class.getDeclaredField("field");
         OgressUtils.getFieldAccessor(BeanNoPublicSetter.class, field);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldAccessorThrowsIllegalArgumentExceptionIfAccessorIsStatic() throws NoSuchFieldException {
+    public void getFieldAccessorThrowsExceptionIfAccessorIsStatic() throws NoSuchFieldException {
         Field field = BeanStaticAccessor.class.getDeclaredField("field");
         OgressUtils.getFieldAccessor(BeanStaticAccessor.class, field);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldAccessorThrowsIllegalArgumentExceptionIfClassDoesNotMatchedField() throws NoSuchFieldException {
+    public void getFieldAccessorThrowsExceptionIfClassDoesNotMatchedField() throws NoSuchFieldException {
         Field field = SimpleBean.class.getField("name");
         OgressUtils.getFieldAccessor(ChildBeanWithFields.class, field);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldAccessorThrowsIllegalArgumentExceptionIfSetterArgIsNotCompatible() throws NoSuchFieldException {
+    public void getFieldAccessorThrowsExceptionIfSetterArgIsNotCompatible() throws NoSuchFieldException {
         Field field = BeanIncompatibleSetter.class.getDeclaredField("field");
         OgressUtils.getFieldAccessor(BeanIncompatibleSetter.class, field);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldAccessorThrowsIllegalArgumentExceptionIfGetterHasMultipleArgs() throws NoSuchFieldException {
+    public void getFieldAccessorThrowsExceptionIfGetterHasMultipleArgs() throws NoSuchFieldException {
         Field field = BeanMultiArgsGetter.class.getDeclaredField("field");
         OgressUtils.getFieldAccessor(BeanMultiArgsGetter.class, field);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getFieldAccessorThrowsIllegalArgumentExceptionIfSetterHasMultipleArgs() throws NoSuchFieldException {
+    public void getFieldAccessorThrowsExceptionIfSetterHasMultipleArgs() throws NoSuchFieldException {
         Field field = BeanMultiArgsSetter.class.getDeclaredField("field");
         OgressUtils.getFieldAccessor(BeanMultiArgsSetter.class, field);
     }

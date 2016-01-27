@@ -4,10 +4,8 @@ import com.github.ogress.OgressDb;
 import com.github.ogress.OgressIOAdapter;
 import org.jetbrains.annotations.NotNull;
 
-public class FileSystemIOAdapter implements OgressIOAdapter {
-    public static final String ROOT_DIR_FILE_PROPERTY = "FileSystemIOAdapter_rootDirFile";
-
-    public FileSystemIOAdapter(@NotNull OgressDb db) {
+public class StubIOAdapter implements OgressIOAdapter {
+    public StubIOAdapter(@NotNull OgressDb db) {
     }
 
     @NotNull

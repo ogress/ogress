@@ -56,6 +56,9 @@ public final class PropertiesObjectSerializer implements OgressObjectSerializer 
     @Nullable
     @Override
     public Object fromRawData(@NotNull byte[] bytes) {
+        if (bytes.length == 0) {
+            return null;
+        }
         Properties p = new Properties();
         try {
             p.load(new ByteArrayInputStream(bytes));

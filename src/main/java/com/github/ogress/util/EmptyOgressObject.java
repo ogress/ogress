@@ -2,6 +2,7 @@ package com.github.ogress.util;
 
 import com.github.ogress.OgressType;
 
-@OgressType("_empty_")
-public class EmptyOgressObject {
+@OgressType("__empty__")
+public final class EmptyOgressObject {
+    public static final EmptyOgressObject INSTANCE = new EmptyOgressObject();
 }
