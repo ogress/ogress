@@ -1,6 +1,5 @@
 package com.github.ogress;
 
-import com.github.ogress.util.OgressUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -27,6 +26,6 @@ public final class OgressObjectSchema {
         this.typeClass = typeClass;
         this.fieldByOgressName = fieldByOgressName;
         this.fields = fieldByOgressName.values().toArray(new OgressFieldInfo[fieldByOgressName.size()]);
-        this.referenceFields = Arrays.stream(fields).filter(f -> !OgressUtils.isValueType(f.field.getType())).toArray(OgressFieldInfo[]::new);
+        this.referenceFields = Arrays.stream(fields).filter(f -> f.type.hasReferences()).toArray(OgressFieldInfo[]::new);
     }
 }

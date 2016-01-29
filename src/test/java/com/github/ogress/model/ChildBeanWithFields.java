@@ -11,7 +11,7 @@ public class ChildBeanWithFields extends ParentBeanWithFields {
     @OgressField("private_child_field")
     private String privateChildField;
 
-    @OgressField("private_child_field")
+    @OgressField("private_child_field2")
     private String privateChildField2;
 
     @OgressField("private_child_field_boolean")

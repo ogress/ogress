@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.Properties;
 
 public final class PropertiesObjectSerializer implements OgressObjectSerializer {
@@ -79,7 +80,7 @@ public final class PropertiesObjectSerializer implements OgressObjectSerializer 
                 value = db.deserializeReference(strValue);
             } else {
                 //noinspection ConstantConditions
-                value = field.valueDeserializer.fromString(strValue);
+                value = field.valueDeserializer.deserialize(strValue);
             }
             field.accessor.setValue(obj, value);
         }
@@ -98,7 +99,8 @@ public final class PropertiesObjectSerializer implements OgressObjectSerializer 
         }
         assert field.valueSerializer != null;
         //noinspection unchecked
-        return field.valueSerializer.toString(val);
+        Serializable s = field.valueSerializer.serialize(val);
+        return s == null ? null : s.toString();
     }
 
 }

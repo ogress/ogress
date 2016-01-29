@@ -3,6 +3,7 @@ package com.github.ogress.util;
 import com.github.ogress.OgressField;
 import com.github.ogress.OgressFieldAccessor;
 import com.github.ogress.OgressFieldInfo;
+import com.github.ogress.OgressFieldKind;
 import com.github.ogress.OgressObjectSchema;
 import com.github.ogress.OgressType;
 import com.github.ogress.serializer.OgressValueDeserializer;
@@ -22,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.github.ogress.serializer.ValueSerializers.FIELD_DESERIALIZERS;
-import static com.github.ogress.serializer.ValueSerializers.FIELD_SERIALIZERS;
+import static com.github.ogress.OgressFieldKind.Reference;
+import static com.github.ogress.OgressFieldKind.Value;
+import static com.github.ogress.serializer.DefaultSerializers.DEFAULT_VALUE_DESERIALIZERS;
+import static com.github.ogress.serializer.DefaultSerializers.DEFAULT_VALUE_SERIALIZERS;
 import static java.util.stream.Collectors.toMap;
 
 public class OgressUtils {
@@ -170,29 +173,50 @@ public class OgressUtils {
         add(Short.class);
         add(Short.TYPE);
         add(String.class);
-        add(List.class);
     }};
 
-    public static boolean isValueType(@NotNull Class<?> type) {
-        return VALUE_TYPES.contains(type) || type.isArray(); //todo: check array type!
+    public static OgressFieldKind getOgressFieldKind(@NotNull Class<?> type) {
+        if (VALUE_TYPES.contains(type)) {
+            return Value;
+        }
+        //todo: handle collections
+        return Reference;
     }
 
     @Nullable
-    public static OgressValueSerializer getValueSerializer(@NotNull Class<?> type) {
-        if (!isValueType(type)) {
-            return null;
+    public static OgressValueSerializer getFieldSerializer(@NotNull Class<?> type) {
+        OgressFieldKind ofType = OgressUtils.getOgressFieldKind(type);
+        OgressValueSerializer res = null;
+        switch (ofType) {
+            case Value:
+                res = DEFAULT_VALUE_SERIALIZERS.get(type);
+                break;
+            case Reference:
+                break;
+            case CollectionOfValues:
+                break;
+            case CollectionOfReferences:
+                break;
         }
-        OgressValueSerializer res = FIELD_SERIALIZERS.get(type);
         Check.notNull(res, () -> "Can't find valueSerializer for " + type);
         return res;
     }
 
     @Nullable
-    public static OgressValueDeserializer getValueDeserializer(@NotNull Class<?> type) {
-        if (!isValueType(type)) {
-            return null;
+    public static OgressValueDeserializer getFieldDeserializer(@NotNull Class<?> type) {
+        OgressFieldKind ofType = OgressUtils.getOgressFieldKind(type);
+        OgressValueDeserializer res = null;
+        switch (ofType) {
+            case Value:
+                res = DEFAULT_VALUE_DESERIALIZERS.get(type);
+                break;
+            case Reference:
+                break;
+            case CollectionOfValues:
+                break;
+            case CollectionOfReferences:
+                break;
         }
-        OgressValueDeserializer res = FIELD_DESERIALIZERS.get(type);
         Check.notNull(res, () -> "Can't find valueDeserializer for " + type);
         return res;
     }

@@ -1,6 +1,7 @@
 package com.github.ogress.util;
 
 import com.github.ogress.OgressFieldAccessor;
+import com.github.ogress.OgressFieldKind;
 import com.github.ogress.model.ChildBean;
 import com.github.ogress.model.ChildBeanWithFields;
 import com.github.ogress.model.ComplexChildBean;
@@ -28,6 +29,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+
+import static com.github.ogress.util.OgressUtils.getOgressFieldKind;
 
 public class OgressUtilsTest extends Assert {
 
@@ -239,45 +242,47 @@ public class OgressUtilsTest extends Assert {
     }
 
     @Test
-    public void checkIsValueTypeWorks() {
-        assertTrue(OgressUtils.isValueType(Boolean.TYPE));
-        assertTrue(OgressUtils.isValueType(Boolean.class));
+    public void checkGetOgressFieldKindForValues() {
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Boolean.TYPE));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Boolean.class));
 
-        assertTrue(OgressUtils.isValueType(Byte.TYPE));
-        assertTrue(OgressUtils.isValueType(Byte.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Byte.TYPE));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Byte.class));
 
-        assertTrue(OgressUtils.isValueType(Character.TYPE));
-        assertTrue(OgressUtils.isValueType(Character.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Character.TYPE));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Character.class));
 
-        assertTrue(OgressUtils.isValueType(Double.TYPE));
-        assertTrue(OgressUtils.isValueType(Double.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Double.TYPE));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Double.class));
 
-        assertTrue(OgressUtils.isValueType(Float.TYPE));
-        assertTrue(OgressUtils.isValueType(Float.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Float.TYPE));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Float.class));
 
-        assertTrue(OgressUtils.isValueType(Integer.TYPE));
-        assertTrue(OgressUtils.isValueType(Integer.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Integer.TYPE));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Integer.class));
 
-        assertTrue(OgressUtils.isValueType(Long.TYPE));
-        assertTrue(OgressUtils.isValueType(Long.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Long.TYPE));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Long.class));
 
-        assertTrue(OgressUtils.isValueType(Short.TYPE));
-        assertTrue(OgressUtils.isValueType(Short.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Short.TYPE));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Short.class));
 
-        assertTrue(OgressUtils.isValueType(String.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(String.class));
 
-        assertTrue(OgressUtils.isValueType(List.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(List.class));
 
-        assertTrue(OgressUtils.isValueType(boolean[].class));
-        assertTrue(OgressUtils.isValueType(byte[].class));
-        assertTrue(OgressUtils.isValueType(char[].class));
-        assertTrue(OgressUtils.isValueType(double[].class));
-        assertTrue(OgressUtils.isValueType(float[].class));
-        assertTrue(OgressUtils.isValueType(int[].class));
-        assertTrue(OgressUtils.isValueType(long[].class));
-        assertTrue(OgressUtils.isValueType(short[].class));
-        assertTrue(OgressUtils.isValueType(String[].class));
-        assertTrue(OgressUtils.isValueType(List[].class));
-        assertTrue(OgressUtils.isValueType(Object[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(boolean[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(byte[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(char[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(double[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(float[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(int[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(long[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(short[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(String[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(List[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(Object[].class));
     }
+
+    //todo: add tests for all types.
 }
