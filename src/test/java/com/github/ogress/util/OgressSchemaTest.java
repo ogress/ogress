@@ -13,6 +13,7 @@ public class OgressSchemaTest extends Assert {
     public void correctSchemaIsCreatedForSimpleBean() throws NoSuchFieldException {
         OgressObjectSchema schema = OgressUtils.prepareObjectSchema(SimpleBean.class);
         assertNotNull(schema);
+
         assertEquals("simple_bean", schema.typeName);
         assertSame(SimpleBean.class, schema.typeClass);
 
@@ -21,7 +22,9 @@ public class OgressSchemaTest extends Assert {
 
         assertNotNull(schema.fields);
         assertEquals(1, schema.fields.length);
+
         assertFalse(schema.fields[0].isReference);
+
         assertEquals(SimpleBean.class.getField("name"), schema.fields[0].field);
         assertEquals("name", schema.fields[0].ogressFieldName);
 

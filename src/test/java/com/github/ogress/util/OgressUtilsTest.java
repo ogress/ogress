@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 public class OgressUtilsTest extends Assert {
@@ -237,5 +238,46 @@ public class OgressUtilsTest extends Assert {
         OgressUtils.getFieldAccessor(BeanMultiArgsSetter.class, field);
     }
 
-    //todo: check isReference method
+    @Test
+    public void checkIsValueTypeWorks() {
+        assertTrue(OgressUtils.isValueType(Boolean.TYPE));
+        assertTrue(OgressUtils.isValueType(Boolean.class));
+
+        assertTrue(OgressUtils.isValueType(Byte.TYPE));
+        assertTrue(OgressUtils.isValueType(Byte.class));
+
+        assertTrue(OgressUtils.isValueType(Character.TYPE));
+        assertTrue(OgressUtils.isValueType(Character.class));
+
+        assertTrue(OgressUtils.isValueType(Double.TYPE));
+        assertTrue(OgressUtils.isValueType(Double.class));
+
+        assertTrue(OgressUtils.isValueType(Float.TYPE));
+        assertTrue(OgressUtils.isValueType(Float.class));
+
+        assertTrue(OgressUtils.isValueType(Integer.TYPE));
+        assertTrue(OgressUtils.isValueType(Integer.class));
+
+        assertTrue(OgressUtils.isValueType(Long.TYPE));
+        assertTrue(OgressUtils.isValueType(Long.class));
+
+        assertTrue(OgressUtils.isValueType(Short.TYPE));
+        assertTrue(OgressUtils.isValueType(Short.class));
+
+        assertTrue(OgressUtils.isValueType(String.class));
+
+        assertTrue(OgressUtils.isValueType(List.class));
+
+        assertTrue(OgressUtils.isValueType(boolean[].class));
+        assertTrue(OgressUtils.isValueType(byte[].class));
+        assertTrue(OgressUtils.isValueType(char[].class));
+        assertTrue(OgressUtils.isValueType(double[].class));
+        assertTrue(OgressUtils.isValueType(float[].class));
+        assertTrue(OgressUtils.isValueType(int[].class));
+        assertTrue(OgressUtils.isValueType(long[].class));
+        assertTrue(OgressUtils.isValueType(short[].class));
+        assertTrue(OgressUtils.isValueType(String[].class));
+        assertTrue(OgressUtils.isValueType(List[].class));
+        assertTrue(OgressUtils.isValueType(Object[].class));
+    }
 }

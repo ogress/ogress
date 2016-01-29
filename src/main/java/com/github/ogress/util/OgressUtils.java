@@ -17,8 +17,10 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.github.ogress.serializer.ValueSerializers.FIELD_DESERIALIZERS;
 import static com.github.ogress.serializer.ValueSerializers.FIELD_SERIALIZERS;
@@ -150,13 +152,34 @@ public class OgressUtils {
         return res;
     }
 
-    public static boolean isReferenceType(@NotNull Class<?> type) {
-        return !type.isPrimitive() && !type.isArray() && !List.class.isAssignableFrom(type) && type != String.class;
+    private static final Set<Class<?>> VALUE_TYPES = new HashSet<Class<?>>() {{
+        add(Boolean.class);
+        add(Boolean.TYPE);
+        add(Byte.class);
+        add(Byte.TYPE);
+        add(Character.class);
+        add(Character.TYPE);
+        add(Double.class);
+        add(Double.TYPE);
+        add(Float.class);
+        add(Float.TYPE);
+        add(Integer.class);
+        add(Integer.TYPE);
+        add(Long.class);
+        add(Long.TYPE);
+        add(Short.class);
+        add(Short.TYPE);
+        add(String.class);
+        add(List.class);
+    }};
+
+    public static boolean isValueType(@NotNull Class<?> type) {
+        return VALUE_TYPES.contains(type) || type.isArray(); //todo: check array type!
     }
 
     @Nullable
     public static OgressValueSerializer getValueSerializer(@NotNull Class<?> type) {
-        if (isReferenceType(type)) {
+        if (!isValueType(type)) {
             return null;
         }
         OgressValueSerializer res = FIELD_SERIALIZERS.get(type);
@@ -166,7 +189,7 @@ public class OgressUtils {
 
     @Nullable
     public static OgressValueDeserializer getValueDeserializer(@NotNull Class<?> type) {
-        if (isReferenceType(type)) {
+        if (!isValueType(type)) {
             return null;
         }
         OgressValueDeserializer res = FIELD_DESERIALIZERS.get(type);

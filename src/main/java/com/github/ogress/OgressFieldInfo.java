@@ -30,7 +30,7 @@ public class OgressFieldInfo {
         this.field = field;
         this.ogressFieldName = ogressFieldName;
         this.accessor = accessor;
-        this.isReference = OgressUtils.isReferenceType(field.getType());
+        this.isReference = !OgressUtils.isValueType(field.getType());
         valueSerializer = isReference ? null : OgressUtils.getValueSerializer(field.getType());
         valueDeserializer = isReference ? null : OgressUtils.getValueDeserializer(field.getType());
     }
