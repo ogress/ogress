@@ -237,4 +237,5 @@ public class OgressUtilsTest extends Assert {
         OgressUtils.getFieldAccessor(BeanMultiArgsSetter.class, field);
     }
 
+    //todo: check isReference method
 }

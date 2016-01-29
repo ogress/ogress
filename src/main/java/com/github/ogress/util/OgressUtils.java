@@ -151,7 +151,7 @@ public class OgressUtils {
     }
 
     public static boolean isReferenceType(@NotNull Class<?> type) {
-        return !type.isPrimitive() && !type.isArray() && !List.class.isAssignableFrom(type);
+        return !type.isPrimitive() && !type.isArray() && !List.class.isAssignableFrom(type) && type != String.class;
     }
 
     @Nullable
