@@ -5,12 +5,12 @@ public enum OgressFieldKind {
     Reference,
     ArrayOfValues,
     ArrayOfReferences,
-    CollectionOfValues,
-    CollectionOfReferences,
+    IterableOfValues,
+    IterableOfReferences,
     MapOfValues,
     MapOfReferences;
 
     public boolean hasReferences() {
-        return this == Reference || this == ArrayOfReferences || this == CollectionOfReferences || this == MapOfReferences;
+        return this == Reference || this == ArrayOfReferences || this == IterableOfReferences || this == MapOfReferences;
     }
 }

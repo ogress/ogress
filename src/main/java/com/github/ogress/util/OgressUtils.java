@@ -15,16 +15,16 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.github.ogress.OgressFieldKind.Reference;
-import static com.github.ogress.OgressFieldKind.Value;
+import static com.github.ogress.OgressFieldKind.*;
 import static com.github.ogress.serializer.DefaultSerializers.DEFAULT_VALUE_DESERIALIZERS;
 import static com.github.ogress.serializer.DefaultSerializers.DEFAULT_VALUE_SERIALIZERS;
 import static java.util.stream.Collectors.toMap;
@@ -175,17 +175,43 @@ public class OgressUtils {
         add(String.class);
     }};
 
-    public static OgressFieldKind getOgressFieldKind(@NotNull Class<?> type) {
+    public static OgressFieldKind getOgressFieldKind(@NotNull Field field) {
+        Class type = field.getType();
         if (VALUE_TYPES.contains(type)) {
             return Value;
         }
-        //todo: handle collections
+        if (type.isArray()) {
+            Class<?> componentType = type.getComponentType();
+            if (VALUE_TYPES.contains(componentType)) {
+                return ArrayOfValues;
+            }
+            return ArrayOfReferences;
+        }
+        if (java.lang.Iterable.class.isAssignableFrom(type)) {
+            Class<?> componentType = getComponentType(field.getGenericType());
+            if (VALUE_TYPES.contains(componentType)) {
+                return IterableOfValues;
+            }
+            return IterableOfReferences;
+        }
+        //todo: maps
         return Reference;
     }
 
+    private static Class<?> getComponentType(Type type) {
+        if (type instanceof ParameterizedType) {
+            Type componentType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            if (componentType instanceof Class) {
+                return (Class<?>) componentType;
+            }
+        }
+        return Object.class;
+    }
+
     @Nullable
-    public static OgressValueSerializer getFieldSerializer(@NotNull Class<?> type) {
-        OgressFieldKind ofType = OgressUtils.getOgressFieldKind(type);
+    public static OgressValueSerializer getFieldSerializer(@NotNull Field field) {
+        Class<?> type = field.getType();
+        OgressFieldKind ofType = OgressUtils.getOgressFieldKind(field);
         OgressValueSerializer res = null;
         switch (ofType) {
             case Value:
@@ -193,9 +219,9 @@ public class OgressUtils {
                 break;
             case Reference:
                 break;
-            case CollectionOfValues:
+            case IterableOfValues:
                 break;
-            case CollectionOfReferences:
+            case IterableOfReferences:
                 break;
         }
         Check.notNull(res, () -> "Can't find valueSerializer for " + type);
@@ -203,8 +229,9 @@ public class OgressUtils {
     }
 
     @Nullable
-    public static OgressValueDeserializer getFieldDeserializer(@NotNull Class<?> type) {
-        OgressFieldKind ofType = OgressUtils.getOgressFieldKind(type);
+    public static OgressValueDeserializer getFieldDeserializer(@NotNull Field field) {
+        Class<?> type = field.getType();
+        OgressFieldKind ofType = OgressUtils.getOgressFieldKind(field);
         OgressValueDeserializer res = null;
         switch (ofType) {
             case Value:
@@ -212,9 +239,9 @@ public class OgressUtils {
                 break;
             case Reference:
                 break;
-            case CollectionOfValues:
+            case IterableOfValues:
                 break;
-            case CollectionOfReferences:
+            case IterableOfReferences:
                 break;
         }
         Check.notNull(res, () -> "Can't find valueDeserializer for " + type);

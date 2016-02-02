@@ -76,7 +76,7 @@ public final class PropertiesObjectSerializer implements OgressObjectSerializer 
 
             String strValue = p.getProperty(key);
             Object value;
-            if (field.isReference) {
+            if (field.kind.hasReferences()) {
                 value = db.deserializeReference(strValue);
             } else {
                 //noinspection ConstantConditions
@@ -94,7 +94,7 @@ public final class PropertiesObjectSerializer implements OgressObjectSerializer 
         if (val == null) {
             return null;
         }
-        if (field.isReference) {
+        if (field.kind.hasReferences()) {
             return db.serializeReference(val);
         }
         assert field.valueSerializer != null;

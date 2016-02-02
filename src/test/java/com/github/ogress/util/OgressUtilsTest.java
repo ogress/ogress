@@ -2,6 +2,7 @@ package com.github.ogress.util;
 
 import com.github.ogress.OgressFieldAccessor;
 import com.github.ogress.OgressFieldKind;
+import com.github.ogress.model.AllFieldTypesBean;
 import com.github.ogress.model.ChildBean;
 import com.github.ogress.model.ChildBeanWithFields;
 import com.github.ogress.model.ComplexChildBean;
@@ -27,7 +28,6 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Map;
 
 import static com.github.ogress.util.OgressUtils.getOgressFieldKind;
@@ -242,47 +242,100 @@ public class OgressUtilsTest extends Assert {
     }
 
     @Test
-    public void checkGetOgressFieldKindForValues() {
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Boolean.TYPE));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Boolean.class));
+    public void checkGetOgressFieldKindForValues() throws NoSuchFieldException {
+        Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Byte.TYPE));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Byte.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("booleanField")));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("BooleanField")));
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Character.TYPE));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Character.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("byteField")));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("ByteField")));
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Double.TYPE));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Double.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("charField")));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("CharacterField")));
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Float.TYPE));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Float.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("doubleField")));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("DoubleField")));
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Integer.TYPE));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Integer.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("floatField")));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("FloatField")));
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Long.TYPE));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Long.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("intField")));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("IntegerField")));
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Short.TYPE));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Short.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("longField")));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("LongField")));
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(String.class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("shortField")));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("ShortField")));
 
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(List.class));
-
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(boolean[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(byte[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(char[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(double[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(float[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(int[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(long[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(short[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(String[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(List[].class));
-        assertSame(OgressFieldKind.Value, getOgressFieldKind(Object[].class));
+        assertSame(OgressFieldKind.Value, getOgressFieldKind(cls.getField("StringField")));
     }
 
-    //todo: add tests for all types.
+    @Test
+    public void checkGetOgressFieldKindForReferences() throws NoSuchFieldException {
+        Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
+
+        assertSame(OgressFieldKind.Reference, getOgressFieldKind(cls.getField("ParentBeanField")));
+        assertSame(OgressFieldKind.Reference, getOgressFieldKind(cls.getField("ChildBeanField")));
+        assertSame(OgressFieldKind.Reference, getOgressFieldKind(cls.getField("ObjectField")));
+        assertSame(OgressFieldKind.Reference, getOgressFieldKind(cls.getField("SerializableField")));
+        assertSame(OgressFieldKind.Reference, getOgressFieldKind(cls.getField("RunnableField")));
+    }
+
+    @Test
+    public void checkGetOgressFieldKindForArrayOfValues() throws NoSuchFieldException {
+        Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
+
+        assertSame(OgressFieldKind.ArrayOfValues, getOgressFieldKind(cls.getField("booleanArrayField")));
+        assertSame(OgressFieldKind.ArrayOfValues, getOgressFieldKind(cls.getField("BooleanArrayField")));
+        assertSame(OgressFieldKind.ArrayOfValues, getOgressFieldKind(cls.getField("charArrayField")));
+        assertSame(OgressFieldKind.ArrayOfValues, getOgressFieldKind(cls.getField("CharacterArrayField")));
+        assertSame(OgressFieldKind.ArrayOfValues, getOgressFieldKind(cls.getField("intArrayField")));
+        assertSame(OgressFieldKind.ArrayOfValues, getOgressFieldKind(cls.getField("IntegerArrayField")));
+        assertSame(OgressFieldKind.ArrayOfValues, getOgressFieldKind(cls.getField("StringArrayField")));
+    }
+
+    @Test
+    public void checkGetOgressFieldKindForArrayOfReferences() throws NoSuchFieldException {
+        Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
+        assertSame(OgressFieldKind.ArrayOfReferences, getOgressFieldKind(cls.getField("ObjectArrayField")));
+        assertSame(OgressFieldKind.ArrayOfReferences, getOgressFieldKind(cls.getField("SerializableArrayField")));
+        assertSame(OgressFieldKind.ArrayOfReferences, getOgressFieldKind(cls.getField("RunnableArrayField")));
+        assertSame(OgressFieldKind.ArrayOfReferences, getOgressFieldKind(cls.getField("ParentBeanArrayField")));
+        assertSame(OgressFieldKind.ArrayOfReferences, getOgressFieldKind(cls.getField("ChildBeanArrayField")));
+    }
+
+    @Test
+    public void checkGetOgressFieldKindForIterableOfValues() throws NoSuchFieldException {
+        Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
+        assertSame(OgressFieldKind.IterableOfValues, getOgressFieldKind(cls.getField("IntegerListField")));
+        assertSame(OgressFieldKind.IterableOfValues, getOgressFieldKind(cls.getField("StringIterableField")));
+        assertSame(OgressFieldKind.IterableOfValues, getOgressFieldKind(cls.getField("BooleanSetField")));
+        assertSame(OgressFieldKind.IterableOfValues, getOgressFieldKind(cls.getField("IntegerArrayListField")));
+    }
+
+    @Test
+    public void checkGetOgressFieldKindForIterableOfReferences() throws NoSuchFieldException {
+        Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
+        assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("ObjectCollection")));
+        assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("ObjectSetField")));
+        assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("RunnableIterableField")));
+        assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("ExtendsRunnableIterableField")));
+        assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("StackOfSerializableField")));
+        assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("ChildBeanLinkedListField")));
+    }
+
+
+    @Test
+    public void checkGetOgressFieldKindForMapOfValues() {
+        Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
+        //todo:
+    }
+
+    @Test
+    public void checkGetOgressFieldKindForMapOfReferences() {
+        //todo:
+    }
+
 }

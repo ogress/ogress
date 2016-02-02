@@ -1,6 +1,7 @@
 package com.github.ogress.util;
 
 import com.github.ogress.OgressFieldInfo;
+import com.github.ogress.OgressFieldKind;
 import com.github.ogress.OgressObjectSchema;
 import com.github.ogress.model.ChildBeanWithFields;
 import com.github.ogress.model.RefListBean;
@@ -28,7 +29,7 @@ public class OgressSchemaTest extends Assert {
         assertNotNull(schema.fields);
         assertEquals(1, schema.fields.length);
 
-        assertFalse(schema.fields[0].isReference);
+        assertFalse(schema.fields[0].kind == OgressFieldKind.Reference);
 
         assertEquals(SimpleBean.class.getField("name"), schema.fields[0].field);
         assertEquals("name", schema.fields[0].ogressFieldName);
@@ -71,7 +72,7 @@ public class OgressSchemaTest extends Assert {
 
         OgressFieldInfo ref = schema.referenceFields[0];
         assertNotNull(ref);
-        assertTrue(ref.isReference);
+        assertTrue(ref.kind == OgressFieldKind.Reference);
         assertNotNull(ref.accessor.field);
         assertNull(ref.accessor.getter);
         assertNull(ref.accessor.setter);
@@ -87,7 +88,7 @@ public class OgressSchemaTest extends Assert {
         assertEquals(0, schema.referenceFields.length);
 
         OgressFieldInfo f = schema.fields[0];
-        assertFalse(f.isReference);
+        assertFalse(f.kind == OgressFieldKind.Reference);
         assertNotNull(f.valueSerializer);
         assertNotNull(f.valueDeserializer);
     }
@@ -97,7 +98,7 @@ public class OgressSchemaTest extends Assert {
         OgressObjectSchema schema = OgressUtils.prepareObjectSchema(RefListBean.class);
         assertEquals(1, schema.fields.length);
         OgressFieldInfo f = schema.fields[0];
-        assertFalse(f.isReference);
+        assertFalse(f.kind == OgressFieldKind.Reference);
         assertNotNull(f.valueSerializer);
         assertNotNull(f.valueDeserializer);
     }

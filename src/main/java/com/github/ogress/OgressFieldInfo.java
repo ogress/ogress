@@ -31,8 +31,8 @@ public class OgressFieldInfo {
         this.field = field;
         this.ogressFieldName = ogressFieldName;
         this.accessor = accessor;
-        this.kind = OgressUtils.getOgressFieldKind(field.getType());
-        valueSerializer = OgressUtils.getFieldSerializer(field.getType());
-        valueDeserializer = OgressUtils.getFieldDeserializer(field.getType());
+        this.kind = OgressUtils.getOgressFieldKind(field);
+        valueSerializer = OgressUtils.getFieldSerializer(field);
+        valueDeserializer = OgressUtils.getFieldDeserializer(field);
     }
 }

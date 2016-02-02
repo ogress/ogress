@@ -26,6 +26,6 @@ public final class OgressObjectSchema {
         this.typeClass = typeClass;
         this.fieldByOgressName = fieldByOgressName;
         this.fields = fieldByOgressName.values().toArray(new OgressFieldInfo[fieldByOgressName.size()]);
-        this.referenceFields = Arrays.stream(fields).filter(f -> f.type.hasReferences()).toArray(OgressFieldInfo[]::new);
+        this.referenceFields = Arrays.stream(fields).filter(f -> f.kind.hasReferences()).toArray(OgressFieldInfo[]::new);
     }
 }
