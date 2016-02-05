@@ -318,7 +318,7 @@ public class OgressUtilsTest extends Assert {
     @Test
     public void checkGetOgressFieldKindForIterableOfReferences() throws NoSuchFieldException {
         Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
-        assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("ObjectCollection")));
+        assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("ObjectCollectionField")));
         assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("ObjectSetField")));
         assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("RunnableIterableField")));
         assertSame(OgressFieldKind.IterableOfReferences, getOgressFieldKind(cls.getField("ExtendsRunnableIterableField")));
@@ -328,14 +328,21 @@ public class OgressUtilsTest extends Assert {
 
 
     @Test
-    public void checkGetOgressFieldKindForMapOfValues() {
+    public void checkGetOgressFieldKindForMapOfValues() throws NoSuchFieldException {
         Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
-        //todo:
+        assertSame(OgressFieldKind.MapOfValues, getOgressFieldKind(cls.getField("IntegerStringMapField")));
+        assertSame(OgressFieldKind.MapOfValues, getOgressFieldKind(cls.getField("StringBooleanMap")));
     }
 
     @Test
-    public void checkGetOgressFieldKindForMapOfReferences() {
-        //todo:
+    public void checkGetOgressFieldKindForMapOfReferences() throws NoSuchFieldException {
+        Class<AllFieldTypesBean> cls = AllFieldTypesBean.class;
+        assertSame(OgressFieldKind.MapOfReferences, getOgressFieldKind(cls.getField("ObjectMapField")));
+        assertSame(OgressFieldKind.MapOfReferences, getOgressFieldKind(cls.getField("StringObjectMapField")));
+        assertSame(OgressFieldKind.MapOfReferences, getOgressFieldKind(cls.getField("StringRunnableMapField")));
+        assertSame(OgressFieldKind.MapOfReferences, getOgressFieldKind(cls.getField("BooleanSerializableMapField")));
+        assertSame(OgressFieldKind.MapOfReferences, getOgressFieldKind(cls.getField("BooleanListMapField")));
+        assertSame(OgressFieldKind.MapOfReferences, getOgressFieldKind(cls.getField("RunnableStringMapField")));
     }
 
 }

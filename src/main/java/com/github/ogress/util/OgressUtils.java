@@ -182,25 +182,24 @@ public class OgressUtils {
         }
         if (type.isArray()) {
             Class<?> componentType = type.getComponentType();
-            if (VALUE_TYPES.contains(componentType)) {
-                return ArrayOfValues;
-            }
-            return ArrayOfReferences;
+            return VALUE_TYPES.contains(componentType) ? ArrayOfValues : ArrayOfReferences;
         }
         if (java.lang.Iterable.class.isAssignableFrom(type)) {
-            Class<?> componentType = getComponentType(field.getGenericType());
-            if (VALUE_TYPES.contains(componentType)) {
-                return IterableOfValues;
-            }
-            return IterableOfReferences;
+            Class<?> componentType = getParametrizedArgumentType(field.getGenericType(), 0);
+            return VALUE_TYPES.contains(componentType) ? IterableOfValues : IterableOfReferences;
         }
-        //todo: maps
+        if (java.util.Map.class.isAssignableFrom(type)) {
+            Class<?> keyType = getParametrizedArgumentType(field.getGenericType(), 0);
+            Class<?> valueType = getParametrizedArgumentType(field.getGenericType(), 1);
+            return VALUE_TYPES.contains(keyType) && VALUE_TYPES.contains(valueType) ? MapOfValues : MapOfReferences;
+        }
         return Reference;
     }
 
-    private static Class<?> getComponentType(Type type) {
+    private static Class<?> getParametrizedArgumentType(Type type, int idx) {
         if (type instanceof ParameterizedType) {
-            Type componentType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            Type[] args = ((ParameterizedType) type).getActualTypeArguments();
+            Type componentType = args[idx];
             if (componentType instanceof Class) {
                 return (Class<?>) componentType;
             }
